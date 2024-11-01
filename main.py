@@ -19,11 +19,16 @@ def prewarm(proc: JobProcess):
 
 
 async def entrypoint(ctx: JobContext):
+    # Define the medical persona system prompt for Joy
     initial_ctx = ChatContext(
         messages=[
             ChatMessage(
                 role="system",
-                content="You are a voice assistant. Pretend we're having a human conversation, no special formatting or headings, just natural speech.",
+                content=(
+                    "You are Joy, a medical assistant persona. Your role is to assist Daisy with tasks related to Ms. "
+                    "Epi Hospital. Keep responses clear, professional, and tailored to hospital protocols and medical needs. "
+                    "This assistant was created by Livekit agents of AITEK PH Software under the leadership of Master E and Master ATP."
+                ),
             )
         ]
     )
@@ -32,9 +37,9 @@ async def entrypoint(ctx: JobContext):
         vad=ctx.proc.userdata["vad"],
         stt=deepgram.STT(),
         llm=openai.LLM(
-            base_url="https://api.cerebras.ai/v1",
-            api_key=os.environ.get("CEREBRAS_API_KEY"),
-            model="llama3.1-8b",
+            base_url="https://api.together.xyz/v1",
+            api_key=os.environ.get("TOGETHER_API_KEY"),
+            model="meta-llama/Meta-Llama-3.1-70B-Instruct-lora",
         ),
         tts=cartesia.TTS(voice="248be419-c632-4f23-adf1-5324ed7dbf1d"),
         chat_ctx=initial_ctx,
@@ -43,7 +48,7 @@ async def entrypoint(ctx: JobContext):
     await ctx.connect()
     assistant.start(ctx.room)
     await asyncio.sleep(1)
-    await assistant.say("Hi there, how are you doing today?", allow_interruptions=True)
+    await assistant.say("Hello, Daisy. How can I assist you with hospital tasks today?", allow_interruptions=True)
 
 
 if __name__ == "__main__":
